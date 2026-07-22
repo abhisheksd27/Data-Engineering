@@ -1,0 +1,71 @@
+# Docker Compose version 3+ automatically detects the latest supported version.
+# This file defines multiple containers (services) that work together.
+
+services:
+
+  # -----------------------------
+  # PostgreSQL Database Service
+  # -----------------------------
+  postgres:
+
+    # Pulls the official PostgreSQL version 16 image from Docker Hub.
+    image: postgres:16
+
+    # Environment variables used to initialize the PostgreSQL database.
+    environment:
+
+      # Creates the PostgreSQL username.
+      POSTGRES_USER: etl_user
+
+      # Sets the password for the PostgreSQL user.
+      POSTGRES_PASSWORD: etl_pass
+
+      # Creates a database named "warehouse" during the first startup.
+      POSTGRES_DB: warehouse
+
+    # Maps the container's PostgreSQL port to your local machine.
+    # Format:
+    # HOST_PORT : CONTAINER_PORT
+    ports:
+      - "5432:5432"
+
+    # Mounts a Docker volume to persist database data.
+    # Without this, all data would be lost if the container is removed.
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+
+  # -----------------------------
+  # ETL Application Service
+  # -----------------------------
+  etl:
+
+    # Builds the Docker image using the Dockerfile
+    # located in the current directory (.).
+    build: .
+
+    # Ensures the postgres service starts before the ETL service.
+    # Note: This only controls startup order.
+    # It does NOT wait until PostgreSQL is fully ready.
+    depends_on:
+      - postgres
+
+    # Environment variables passed to the ETL container.
+    environment:
+
+      # Database hostname.
+      # Docker Compose automatically creates an internal DNS.
+      # Therefore, "postgres" resolves to the PostgreSQL container.
+      DB_HOST: postgres
+
+
+# -----------------------------
+# Docker Volumes
+# -----------------------------
+volumes:
+
+  # Creates a named Docker volume called "pg_data".
+  # This volume stores PostgreSQL data permanently.
+  # Even if the postgres container is deleted,
+  # the database files remain inside this volume.
+  pg_data:

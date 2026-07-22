@@ -219,3 +219,12 @@ __marimo__/
 
 
 *.parquet
+
+
+__pycache__/
+*.pyc
+.git
+.env
+.venv
+venv/
+*.egg-info
