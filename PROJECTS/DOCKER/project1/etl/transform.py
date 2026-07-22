@@ -12,7 +12,7 @@ def transform(raw_df: pd.DataFrame)-> pd.DataFrame:
 
     df=df.dropna(subset=["order_date", "product_category", "quantity", "unit_price"])
 
-    df['order_date'] = pd.to_datetime(df['order_date']).to_date
+    df['order_date'] = pd.to_datetime(df['order_date']).dt.date
 
     df['quantity'] = df["quantity"].astype(int)
 
@@ -30,7 +30,7 @@ def transform(raw_df: pd.DataFrame)-> pd.DataFrame:
         df.groupby(['order_date','product_category'], as_index=False)
         .agg(
             total_revenue=("total_amount","sum"),
-            orders=("total_amoount","count"),
+            orders=("total_amount","count"),
             units_sold =('quantity','sum')
         )
         .sort_values(["order_date","product_category"])
